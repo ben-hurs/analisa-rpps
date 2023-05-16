@@ -25,6 +25,10 @@ cad_cnpj_limpo['CNPJ_FUNDO'] = cad_cnpj_limpo['CNPJ_FUNDO'].str.replace('.','').
 
 ### PAGINA PRINCIPAL
 
+st.set_page_config(
+    layout="wide"
+)
+
 st.header(":bar_chart: RELATÓRIO DA CARTEIRA DOS RPPS")
 
 dst1, dst2 = st.columns([1,1])
