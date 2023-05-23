@@ -12,7 +12,14 @@ cad = pd.read_csv('cad/cad_fi.csv',sep = ';', encoding='latin-1')
 cad = cad[['CNPJ_FUNDO', 'DENOM_SOCIAL', 'ADMIN', 'GESTOR', 'TAXA_ADM', 'TAXA_PERFM']]
 
 pe = pd.read_excel('rpps/pe_rpps_0323.xlsx')
+pe1 = pd.read_excel('rpps/pe_rpps.xlsx')
+pe2 = pd.read_excel('rpps/pe_rpps_0423.xlsx')
+pe3 = pd.read_excel('rpps/pe_rpps_1222.xlsx')
 rj = pd.read_excel('rpps/rpps_rj.xlsx')
+
+folha_pagamento = pd.read_excel('folha de pagamento/folha_pagamento_pe.xlsx')
+
+
 
 df = pd.concat([pe,rj])
 
@@ -99,6 +106,14 @@ rotuloValor = graf_pizza.mark_text(radius=165, size=14).encode(text='%')
 total_investido = filtro_municipio['VALOR TOTAL ATUAL'].sum()
 taxa_adm = relatorio['TAXA_ADM'].sum()
 taxa_perfm = relatorio['TAXA_PERFM'].sum()
+
+filtro_pagamento_2022 = folha_pagamento[(folha_pagamento['dt_exercicio']== 2022) & (folha_pagamento['no_ente'] == municipio)]
+pagamento_2022 = filtro_pagamento_2022['vl_pagamentos'].sum()
+
+filtro_pagamento_2023 = folha_pagamento[(folha_pagamento['dt_exercicio']== 2023) & (folha_pagamento['no_ente'] == municipio)]
+pagamento_2023 = filtro_pagamento_2023['vl_pagamentos'].sum()
+ultima_att = filtro_pagamento_2023['dt_envio'].max()
+
 ###
 col1, col2, col3 = st.columns([0.5,0.5,1])
 
@@ -107,10 +122,19 @@ with col1:
     st.info(f"R$ {total_investido:,.2f}")
 
     st.write('**TAXA TOTAL DE ADMINISTRAÇÃO**')
-    st.info(f'R$ {taxa_adm:,.2f}')
+    st.info(f'{taxa_adm:,.2f}%')
 
     st.write('**TAXA TOTAL DE PERFORMANCE**')
     st.info(f'{taxa_perfm}%')
+
+
+with col2:
+    st.write('**FOLHA DE PAGAMENTO 2022**')
+    st.info(f'R${pagamento_2022:,.2f}')
+
+    st.write('**FOLHA DE PAGAMENTO 2023**')
+    st.info(f'R${pagamento_2023:,.2f}')
+    st.write(f'Data de última atualização: {ultima_att}')
 
 
 with col3:
@@ -125,6 +149,8 @@ st.dataframe(relatorio, use_container_width=True)
 
 st.subheader('Indicadores para tesouro direto e transações bancarias')
 st.dataframe(nao_lamina)
+
+
 
 
 
