@@ -12,9 +12,6 @@ cad = pd.read_csv('cad/cad_fi.csv',sep = ';', encoding='latin-1')
 cad = cad[['CNPJ_FUNDO', 'DENOM_SOCIAL', 'ADMIN', 'GESTOR', 'TAXA_ADM', 'TAXA_PERFM']]
 
 pe = pd.read_excel('rpps/pe_rpps_0323.xlsx')
-pe1 = pd.read_excel('rpps/pe_rpps.xlsx')
-pe2 = pd.read_excel('rpps/pe_rpps_0423.xlsx')
-pe3 = pd.read_excel('rpps/pe_rpps_1222.xlsx')
 rj = pd.read_excel('rpps/rpps_rj.xlsx')
 
 folha_pagamento = pd.read_excel('folha de pagamento/folha_pagamento_pe.xlsx')
