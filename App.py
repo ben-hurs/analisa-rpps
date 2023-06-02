@@ -23,12 +23,17 @@ cad = cad[['CNPJ_FUNDO', 'DENOM_SOCIAL', 'ADMIN', 'GESTOR', 'TAXA_ADM', 'TAXA_PE
 
 pe = pd.read_excel('rpps/pe_rpps_0323.xlsx')
 rj = pd.read_excel('rpps/rpps_rj.xlsx')
+pb = pd.read_excel('rpps/pb_rpps_0323.xlsx')
+al = pd.read_excel('rpps/al_rpps_0323.xlsx')
+am = pd.read_excel('rpps/am_rpps_0323.xlsx')
+
+#cotas = pd.read_csv('cotas/cotas.csv')
 
 folha_pagamento = pd.read_excel('folha de pagamento/folha_pagamento_pe.xlsx')
 
 
 
-df = pd.concat([pe,rj])
+df = pd.concat([pe,rj,pb,al,am])
 
 
 
@@ -64,6 +69,8 @@ with dst2:
 st.markdown('---')
 
 filtro_municipio = df[df['MUNICÍPIO'] == municipio]
+#filtro_municipio1 = filtro_municipio.copy()
+#filtro_municipio1 = filtro_municipio1[['ID ATIVO', 'NOME DO FUNDO']]
 
 ##############################################################################################
 
@@ -72,9 +79,31 @@ lamina = lamina.drop_duplicates('CNPJ_FUNDO').reset_index(drop=True)
 ##
 nao_lamina = filtro_municipio[~filtro_municipio['ID ATIVO'].isin(lamina['ID ATIVO'])]
 nao_lamina = nao_lamina[['NOME DO FUNDO', 'TIPO DO ATIVO', 'VALOR TOTAL ATUAL', '% DE RECURSOS DO RPPS']].sort_values('TIPO DO ATIVO').reset_index(drop=True)
+##
+cotas_rpps = pd.merge(filtro_municipio, cotas_cvm, how='inner', left_on = 'ID ATIVO', right_on = 'CNPJ do Fundo' )
+cotas_rpps = cotas_rpps[['Data','NOME DO FUNDO', 'Cota']]
+cotas_rpps['Data'] = pd.to_datetime(cotas_rpps['Data'], format = '%Y-%m-%d')
+cotas_rpps['Cota'] = cotas_rpps['Cota'].replace('-', 'NaN')
+cotas_rpps['Cota'] = cotas_rpps['Cota'].astype(float)
+cotas_rpps = cotas_rpps.drop_duplicates(['Data','NOME DO FUNDO'])
+
+cotas_pivo = cotas_rpps.pivot(index = 'Data' ,columns = 'NOME DO FUNDO', values = 'Cota')
+
+retorno = (cotas_pivo/cotas_pivo.shift(1)) -1
+retorno_anual = round(retorno.mean() * 22*5 * 100,2).reset_index()
+retorno_anual.columns = ['NOME DO FUNDO', 'RETORNO PURO']
 
 
-relatorio = lamina[['NOME DO FUNDO', 'GESTOR', 'ADMIN', 'TAXA_ADM', 'TAXA_PERFM', '% DE RECURSOS DO RPPS',
+##
+#relatorio = lamina[['CNPJ_FUNDO','NOME DO FUNDO','RETORNO PURO', 'GESTOR', 'ADMIN', 'TAXA_ADM', 'TAXA_PERFM', '% DE RECURSOS DO RPPS',
+#                'VALOR TOTAL ATUAL','TIPO DO ATIVO']]
+relatorio = pd.merge(retorno_anual, lamina, how='inner', on = 'NOME DO FUNDO')
+relatorio = relatorio[['CNPJ_FUNDO','NOME DO FUNDO','RETORNO PURO', 'GESTOR', 'ADMIN', 'TAXA_ADM', 'TAXA_PERFM', '% DE RECURSOS DO RPPS',
+                'VALOR TOTAL ATUAL','TIPO DO ATIVO']]
+relatorio.columns = ['CNPJ DO FUNDO','NOME DO FUNDO','RETORNO PURO', 'GESTOR', 'ADMIN', 'TAXA DE ADM', 'TAXA DE PERFM', '% DE RECURSOS DO RPPS',
+                'VALOR TOTAL ATUAL','TIPO DO ATIVO']
+relatorio['RETORNO NA CARTEIRA'] = relatorio['RETORNO PURO'] * relatorio['% DE RECURSOS DO RPPS']
+relatorio = relatorio[['CNPJ DO FUNDO','NOME DO FUNDO','RETORNO PURO','RETORNO NA CARTEIRA', 'GESTOR', 'ADMIN', 'TAXA DE ADM', 'TAXA DE PERFM', '% DE RECURSOS DO RPPS',
                 'VALOR TOTAL ATUAL','TIPO DO ATIVO']]
 
 
@@ -165,6 +194,10 @@ st.dataframe(relatorio, use_container_width=True)
 
 st.subheader('Indicadores para tesouro direto e transações bancarias')
 st.dataframe(nao_lamina)
+
+st.subheader('Retornos')
+st.dataframe(retorno_anual)
+
 
 
 
