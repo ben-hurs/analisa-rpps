@@ -26,6 +26,9 @@ rj = pd.read_excel('rpps/rpps_rj.xlsx')
 pb = pd.read_excel('rpps/pb_rpps_0323.xlsx')
 al = pd.read_excel('rpps/al_rpps_0323.xlsx')
 am = pd.read_excel('rpps/am_rpps_0323.xlsx')
+ce = pd.read_excel('rpps/ce_rpps_0323.xlsx')
+ma = pd.read_excel('rpps/ma_rpps_0323.xlsx')
+
 
 #cotas = pd.read_csv('cotas/cotas.csv')
 
@@ -33,7 +36,7 @@ folha_pagamento = pd.read_excel('folha de pagamento/folha_pagamento_pe.xlsx')
 
 
 
-df = pd.concat([pe,rj,pb,al,am])
+df = pd.concat([pe, rj, pb, al, am, ce, ma])
 
 
 
@@ -102,7 +105,7 @@ relatorio = relatorio[['CNPJ_FUNDO','NOME DO FUNDO','RETORNO PURO', 'GESTOR', 'A
                 'VALOR TOTAL ATUAL','TIPO DO ATIVO']]
 relatorio.columns = ['CNPJ DO FUNDO','NOME DO FUNDO','RETORNO PURO', 'GESTOR', 'ADMIN', 'TAXA DE ADM', 'TAXA DE PERFM', '% DE RECURSOS DO RPPS',
                 'VALOR TOTAL ATUAL','TIPO DO ATIVO']
-relatorio['RETORNO NA CARTEIRA'] = relatorio['RETORNO PURO'] * relatorio['% DE RECURSOS DO RPPS']
+relatorio['RETORNO NA CARTEIRA'] = (relatorio['RETORNO PURO'] * relatorio['% DE RECURSOS DO RPPS'])/100
 relatorio = relatorio[['CNPJ DO FUNDO','NOME DO FUNDO','RETORNO PURO','RETORNO NA CARTEIRA', 'GESTOR', 'ADMIN', 'TAXA DE ADM', 'TAXA DE PERFM', '% DE RECURSOS DO RPPS',
                 'VALOR TOTAL ATUAL','TIPO DO ATIVO']]
 
@@ -114,7 +117,7 @@ relatorio = relatorio[['CNPJ DO FUNDO','NOME DO FUNDO','RETORNO PURO','RETORNO N
 
 
 #Gráfico de tipo de ativo
-tipo_ativo = relatorio.groupby('TIPO DO ATIVO')['NOME DO FUNDO'].count()
+tipo_ativo = filtro_municipio.groupby('TIPO DO ATIVO')['NOME DO FUNDO'].count()
 tipo_ativo = (tipo_ativo/tipo_ativo.sum()*100).round(2)
 tipo_ativo = pd.DataFrame(tipo_ativo).reset_index()
 tipo_ativo.columns = ['TIPO DO ATIVO', '%']
@@ -129,14 +132,14 @@ graf_pizza = alt.Chart(tipo_ativo).mark_bar(
 ).encode(
     x='%',
     y='TIPO DO ATIVO',
-    color = 'TIPO DO ATIVO',
-    #color=alt.Color(
-    #    field='TIPO DO ATIVO', 
-    #    #type='nominal',
-    #    legend=None
-    #),
+    #color = 'TIPO DO ATIVO',
+    color=alt.Color(
+        field='TIPO DO ATIVO', 
+        type='nominal',
+        legend=None
+    ),
     tooltip = ['TIPO DO ATIVO', '%'],
-    #alt.Legend(orient='top'),    
+    #legend = None    
 )
 
 rotuloNome = graf_pizza.mark_text(radius=200, size=14).encode(text='TIPO DO ATIVO')
@@ -154,7 +157,8 @@ pagamento_2022 = filtro_pagamento_2022['vl_pagamentos'].sum()
 filtro_pagamento_2023 = folha_pagamento[(folha_pagamento['dt_exercicio']== 2023) & (folha_pagamento['no_ente'] == municipio)]
 pagamento_2023 = filtro_pagamento_2023['vl_pagamentos'].sum()
 ultima_att = filtro_pagamento_2023['dt_envio'].max()
-retorno_total_carteira = relatorio['RETORNO PURO'].dot(relatorio['% DE RECURSOS DO RPPS'])
+#retorno_total_carteira = relatorio['RETORNO PURO'].dot(relatorio['% DE RECURSOS DO RPPS']/100)
+retorno_total_carteira = relatorio['RETORNO NA CARTEIRA'].sum()
 
 ###
 col1, col2, col3 = st.columns([0.5,0.5,1])
@@ -195,8 +199,8 @@ st.dataframe(relatorio, use_container_width=True)
 st.subheader('Indicadores para tesouro direto e transações bancarias')
 st.dataframe(nao_lamina)
 
-st.subheader('Retornos')
-st.dataframe(retorno_anual)
+#st.subheader('Retornos')
+#st.dataframe(retorno_anual)
 
 
 
