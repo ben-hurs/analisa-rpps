@@ -94,7 +94,7 @@ cotas_rpps = cotas_rpps.drop_duplicates(['Data','NOME DO FUNDO'])
 cotas_pivo = cotas_rpps.pivot(index = 'Data' ,columns = 'NOME DO FUNDO', values = 'Cota')
 
 retorno = (cotas_pivo/cotas_pivo.shift(1)) -1
-retorno_anual = round(retorno.mean() * 22*5 * 8 * 100,2).reset_index()
+retorno_anual = round(retorno.mean() * (22*5 + 8) * 100,2).reset_index()
 retorno_anual.columns = ['NOME DO FUNDO', 'RETORNO PURO']
 
 
