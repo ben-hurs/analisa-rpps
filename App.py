@@ -54,25 +54,24 @@ st.set_page_config(
     layout="wide"
 )
 
-st.header(":bar_chart: RELATÓRIO DA CARTEIRA DOS RPPS")
+# SIDEBAR ===========================
+with st.sidebar:
+    st.header("Capital Ávila")
+    st.subheader('Análise de RPPS')
 
-dst1, dst2 = st.columns([1,1])
-with dst1:
+
+    # FILTROS ==========================
     uf = st.selectbox(
-        'Selecione o Estado',
-        (df['UF']).unique()
+    'Selecione o Estado',
+    (df['UF']).unique()    
     )
-filtro_uf = df[df['UF'] == uf]
+    filtro_uf = df[df['UF'] == uf]
 
-with dst2:
     municipio = st.selectbox(
-        'Selecione o Município',
-        (filtro_uf['MUNICÍPIO']).unique()
+    'Selecione o Município',
+    (filtro_uf['MUNICÍPIO']).unique()
     )
-
-st.markdown('---')
-
-filtro_municipio = df[df['MUNICÍPIO'] == municipio]
+    filtro_municipio = df[df['MUNICÍPIO'] == municipio]
 #filtro_municipio1 = filtro_municipio.copy()
 #filtro_municipio1 = filtro_municipio1[['ID ATIVO', 'NOME DO FUNDO']]
 
@@ -94,7 +93,7 @@ cotas_rpps = cotas_rpps.drop_duplicates(['Data','NOME DO FUNDO'])
 cotas_pivo = cotas_rpps.pivot(index = 'Data' ,columns = 'NOME DO FUNDO', values = 'Cota')
 
 retorno = (cotas_pivo/cotas_pivo.shift(1)) -1
-retorno_anual = round(retorno.mean() * (22*5 + 9) * 100,2).reset_index()
+retorno_anual = round(retorno.mean() * (22*5 + 13) * 100,2).reset_index()
 retorno_anual.columns = ['NOME DO FUNDO', 'RETORNO PURO']
 
 
@@ -162,37 +161,76 @@ ultima_att = filtro_pagamento_2023['dt_envio'].max()
 retorno_total_carteira = relatorio['RETORNO NA CARTEIRA'].sum()
 
 ###
-col1, col2, col3 = st.columns([0.5,0.5,1])
+col1, col2, col3, col4 = st.columns([1,1,1,1])
 
 with col1:
-    st.write('**TOTAL INVESTIDO**')
-    st.info(f"R$ {total_investido:,.2f}")
+    st.metric(
+        label="TOTAL INVESTIDO",
+        value= f"R$ {total_investido:,.2f}"
+    )
 
-    st.write('**TAXA TOTAL DE ADMINISTRAÇÃO**')
-    st.info(f'{taxa_adm:,.2f}%')
 
-    st.write('**TAXA TOTAL DE PERFORMANCE**')
-    st.info(f'{taxa_perfm}%')
 
 
 with col2:
-    st.write('**FOLHA DE PAGAMENTO 2022**')
-    st.info(f'R${pagamento_2022:,.2f}')
+    st.metric(
+        label="TAXA TOTAL DE ADMINISTRAÇÃO",
+        value= f"{taxa_adm:,.2f}%"
+    )
 
-    st.write('**FOLHA DE PAGAMENTO 2023**')
-    st.info(f'R${pagamento_2023:,.2f}')
-    #st.write(f'Data de última atualização: {ultima_att}')
 
-    st.write('**RETORNO DA CARTEIRA**')
-    st.info(f'{retorno_total_carteira:,.2f} %')
 
 
 with col3:
-    st.altair_chart(graf_pizza , use_container_width=True)
+    st.metric(
+        label="RETORNO DA CARTEIRA",
+        value= f"{retorno_total_carteira:,.2f}%"
+    )
+
+with col4:
+    st.metric(
+        label="FOLHA DE PAGAMENTO",
+        value= f"{f'R${pagamento_2023:,.2f}'}"
+    )
+
+st.markdown('---')
+
+# Grafico de linha =================================
+retorno1 = retorno.copy()
+retorno1['Retorno'] = retorno1.sum(axis=1)
+retorno1 = retorno1[ 'Retorno'].reset_index()
+retorno1 = pd.DataFrame(retorno1)
+retorno1['Retorno'] = retorno1['Retorno'].round(2)
+retorno1 = retorno1.groupby(pd.Grouper(key='Data', freq='M')).sum().reset_index()
+
+st.subheader('Taxa de retorno da carteira ao longo de 2023')
+
+graf_retorno = alt.Chart(retorno1).mark_line(
+    point = True
+).encode(
+    alt.Y('Retorno', title='Retorno (%)'),
+    alt.X('Data', title='Mês')  
+    #color='b:N'
+)
+
+st.altair_chart(graf_retorno, use_container_width=True)
+
+#st.line_chart(retorno1)
+
+
 
 
 st.markdown('---')
 
+# TIPO DO ATIVO =====================================================
+st.altair_chart(graf_pizza , use_container_width=True)
+
+
+
+st.markdown('---')
+
+
+# Indicadores ==============================
 st.subheader('Indicadores para cada fundo na carteira')
 st.dataframe(relatorio, use_container_width=True)
 
@@ -201,8 +239,9 @@ st.subheader('Indicadores para tesouro direto e transações bancarias')
 st.dataframe(nao_lamina)
 
 #st.subheader('Retornos')
-#st.dataframe(cotas_cvm_bi3.head())
-#st.dataframe(cotas_cvm_bi3.tail())
+
+
+
 
 
 
