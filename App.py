@@ -52,11 +52,15 @@ cad_cnpj_limpo['CNPJ_FUNDO'] = cad_cnpj_limpo['CNPJ_FUNDO'].str.replace('.','').
 
 st.set_page_config(
     layout="wide"
+    #page_title="Multipage App"
 )
+
+
+    
 
 # SIDEBAR ===========================
 with st.sidebar:
-    st.header("Capital Ávila")
+    st.title("Capital Ávila")
     st.subheader('Análise de RPPS')
 
 
@@ -72,6 +76,11 @@ with st.sidebar:
     (filtro_uf['MUNICÍPIO']).unique()
     )
     filtro_municipio = df[df['MUNICÍPIO'] == municipio]
+
+    #page_title="Multipage App"
+
+    
+    
 #filtro_municipio1 = filtro_municipio.copy()
 #filtro_municipio1 = filtro_municipio1[['ID ATIVO', 'NOME DO FUNDO']]
 
@@ -93,7 +102,7 @@ cotas_rpps = cotas_rpps.drop_duplicates(['Data','NOME DO FUNDO'])
 cotas_pivo = cotas_rpps.pivot(index = 'Data' ,columns = 'NOME DO FUNDO', values = 'Cota')
 
 retorno = (cotas_pivo/cotas_pivo.shift(1)) -1
-retorno_anual = round(retorno.mean() * (22*5 + 13) * 100,2).reset_index()
+retorno_anual = round(retorno.mean() * (22*5 + 18) * 100,2).reset_index()
 retorno_anual.columns = ['NOME DO FUNDO', 'RETORNO PURO']
 
 
