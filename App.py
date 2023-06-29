@@ -17,7 +17,6 @@ cotas_cvm['CNPJ do Fundo'] = cotas_cvm['CNPJ do Fundo'].astype(object)
 cotas_cvm['Data'] = pd.to_datetime(cotas_cvm['Data'], format = '%Y-%m-%d')
 
 
-
 cad = pd.read_csv('cad/cad_fi.csv',sep = ';', encoding='latin-1')
 cad = cad[['CNPJ_FUNDO', 'DENOM_SOCIAL', 'ADMIN', 'GESTOR', 'TAXA_ADM', 'TAXA_PERFM']]
 
@@ -94,15 +93,15 @@ nao_lamina = nao_lamina[['NOME DO FUNDO', 'TIPO DO ATIVO', 'VALOR TOTAL ATUAL', 
 ##
 cotas_rpps = pd.merge(filtro_municipio, cotas_cvm, how='inner', left_on = 'ID ATIVO', right_on = 'CNPJ do Fundo' )
 cotas_rpps = cotas_rpps[['Data','NOME DO FUNDO', 'Cota']]
-cotas_rpps['Data'] = pd.to_datetime(cotas_rpps['Data'], format = '%Y-%m-%d')
-cotas_rpps['Cota'] = cotas_rpps['Cota'].replace('-', 'NaN')
-cotas_rpps['Cota'] = cotas_rpps['Cota'].astype(float)
+#cotas_rpps['Data'] = pd.to_datetime(cotas_rpps['Data'], format = '%Y-%m-%d')
+#cotas_rpps['Cota'] = cotas_rpps['Cota'].replace('-', 'NaN')
+#cotas_rpps['Cota'] = cotas_rpps['Cota'].astype(float)
 cotas_rpps = cotas_rpps.drop_duplicates(['Data','NOME DO FUNDO'])
 
 cotas_pivo = cotas_rpps.pivot(index = 'Data' ,columns = 'NOME DO FUNDO', values = 'Cota')
 
 retorno = (cotas_pivo/cotas_pivo.shift(1)) -1
-retorno_anual = round(retorno.mean() * (22*5 + 18) * 100,2).reset_index()
+retorno_anual = round(retorno.mean() * (22*5 + 21) * 100,2).reset_index()
 retorno_anual.columns = ['NOME DO FUNDO', 'RETORNO PURO']
 
 
