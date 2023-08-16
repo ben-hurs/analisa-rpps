@@ -47,8 +47,8 @@ folha_pagamento = pd.read_excel('folha de pagamento/folha_pagamento_pe.xlsx')
 
 
 
-df = pd.concat([pe, rj, pb, al, am, ce, ma, pi,se,
-                pe1, rj1, pb1, al1, am1, ce1, ma1, pi1])
+df = pd.concat([pe, rj, pb, al, am, ce, ma, pi,
+                pe1, rj1, pb1, al1, am1, ce1, ma1, pi1,se])
 
 
 
@@ -76,6 +76,8 @@ with st.sidebar:
 
 
     # FILTROS ==========================
+
+
     mes = st.selectbox(
         'Seleciona o Mês',
         df['MÊS'].unique()
@@ -86,13 +88,16 @@ with st.sidebar:
     'Selecione o Estado',
     (filtro_mes['UF']).unique()    
     )
-    filtro_uf = df[df['UF'] == uf]
+    filtro_uf = filtro_mes[filtro_mes['UF'] == uf]
+
 
     municipio = st.selectbox(
     'Selecione o Município',
     (filtro_uf['MUNICÍPIO']).unique()
     )
-    filtro_municipio = df[df['MUNICÍPIO'] == municipio]
+    filtro_municipio = filtro_uf[filtro_uf['MUNICÍPIO'] == municipio]
+
+
 
     #page_title="Multipage App"
 

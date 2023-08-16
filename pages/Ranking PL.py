@@ -57,6 +57,7 @@ with st.sidebar:
 
 
     # FILTROS ==========================
+
     mes = st.selectbox(
         'Seleciona o Mês',
         df['MÊS'].unique()
@@ -67,19 +68,17 @@ with st.sidebar:
     'Selecione o Estado',
     (filtro_mes['UF']).unique()    
     )
-    filtro_uf = df[df['UF'] == uf]
+    filtro_uf = filtro_mes[filtro_mes['UF'] == uf]
 
-    municipio = st.selectbox(
-    'Selecione o Município',
-    (filtro_uf['MUNICÍPIO']).unique()
-    )
-    filtro_municipio = df[df['MUNICÍPIO'] == municipio]
+
+
+
 
     #page_title="Multipage App"
 
 
 
-ranking_pl = filtro_uf[['UF' ,'MUNICÍPIO', 'VALOR TOTAL ATUAL']].reset_index(drop=True)
+ranking_pl = filtro_uf [['UF' ,'MUNICÍPIO', 'VALOR TOTAL ATUAL']].reset_index(drop=True)
 ranking_pl = ranking_pl.groupby('MUNICÍPIO').sum('VALOR TOTAL ATUAL').reset_index()
 ranking_pl = ranking_pl.sort_values('VALOR TOTAL ATUAL', ascending=False).reset_index(drop=True)
 st.table(ranking_pl)
