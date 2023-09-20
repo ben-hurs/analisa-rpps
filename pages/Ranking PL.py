@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 import numpy as np
 import altair as alt
+import os
 
 st.title("Ranking de PL")
 
@@ -18,22 +19,28 @@ cotas_cvm['Data'] = pd.to_datetime(cotas_cvm['Data'], format = '%Y-%m-%d')
 cad = pd.read_csv('cad/cad_fi.csv',sep = ';', encoding='latin-1')
 cad = cad[['CNPJ_FUNDO', 'DENOM_SOCIAL', 'ADMIN', 'GESTOR', 'TAXA_ADM', 'TAXA_PERFM']]
 
-pe = pd.read_excel('rpps/pe_rpps_0623.xlsx')
-rj = pd.read_excel('rpps/rj_rpps_0623.xlsx')
-pb = pd.read_excel('rpps/pb_rpps_0623.xlsx')
-al = pd.read_excel('rpps/al_rpps_0623.xlsx')
-am = pd.read_excel('rpps/am_rpps_0623.xlsx')
-ce = pd.read_excel('rpps/ce_rpps_0623.xlsx')
-ma = pd.read_excel('rpps/ma_rpps_0623.xlsx')
-pi = pd.read_excel('rpps/pi_rpps_0623.xlsx')
-se = pd.read_excel('rpps/se_rpps_0523.xlsx')
+pasta = r'C:\Users\Ben-Hur\Documents\dashboar streamlit\rpps'
+
+# Lista todos os arquivos na pasta
+arquivos_xlsx = [arquivo for arquivo in os.listdir(pasta) if arquivo.endswith('.xlsx')]
+
+# Crie uma lista para armazenar os DataFrames individuais
+dataframes = []
+
+# Loop pelos arquivos XLSX e leia-os em DataFrames individuais
+for arquivo in arquivos_xlsx:
+    caminho_arquivo = os.path.join(pasta, arquivo)
+    df = pd.read_excel(caminho_arquivo)
+    dataframes.append(df)
+
+# Concatene todos os DataFrames em um único DataFrame
+df = pd.concat(dataframes, ignore_index=True)
 
 
 folha_pagamento = pd.read_excel('folha de pagamento/folha_pagamento_pe.xlsx')
 
 
 
-df = pd.concat([pe, rj, pb, al, am, ce, ma, pi,se])
 
 
 
